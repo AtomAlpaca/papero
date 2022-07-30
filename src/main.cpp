@@ -1,11 +1,12 @@
 #include "conf.h"
 #include "gen.h"
+#include "rss.h"
 
 int main()
 {
 	libconfig::Config cfg;
 
-		cfg.readFile("blog.conf");
+	cfg.readFile("blog.conf");
 
 
 	std::vector <std::pair <std::string, std::string> > postList;
@@ -15,7 +16,10 @@ int main()
 				templatePath,
 				author,
 				outputPath,
-				mainPageContent;
+				mainPageContent,
+				endContent,
+				description,
+				domain;
 
 	try
 	{
@@ -27,6 +31,9 @@ int main()
 		author			= papero::conf::getAuthor (cfg);
 		outputPath  	= papero::conf::getOutputPath (cfg);
 		mainPageContent = papero::conf::getMainPageContent(cfg);
+		endContent		= papero::conf::getMainPageEndContent(cfg);
+		description 	= papero::conf::getSiteDescription(cfg);
+		domain 			= papero::conf::getSiteDomain(cfg);
 	}
 	catch(...)
 	{
@@ -44,13 +51,14 @@ int main()
 		  + "/post").c_str());
 
 	papero::gen::postGen(postList, outputPath, templatePath);
-	papero::gen::indexGen(postList, outputPath, lang, author, name, style, mainPageContent);
+	papero::gen::indexGen(postList, outputPath, lang, author, name, style, mainPageContent, endContent);
+	papero::rss::RSSGen(outputPath, name, domain, description, postList);
 
 	system((std::string("cp ")
 		  + style
 		  + " "
 		  + outputPath
-		  + "/post"
+		  + "/post/"
 		  + papero::gen::getPureTitle(style)).c_str());
 
 	system((std::string("cp ./CNAME ")

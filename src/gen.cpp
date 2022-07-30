@@ -6,23 +6,25 @@ namespace papero
 	{
 		std::string getPureTitle(std::string title)
 		{
-				std::string pureTitle;
-				if (title[title.size()] == '/')
-				{
-					title[title.size()] = ' ';
-				}
+			
+			int start, end = title.size();
 
-				const int find = title.rfind('/');
+			if (title[title.size()] == '/')
+			{
+				--end;
+			}
 
-				if (find == std::string::npos)
-				{
-					pureTitle = title;
-				}
-				else
-				{
-					pureTitle = title.substr(find);
-				}
-				return pureTitle;
+			start = title.rfind('/');
+
+			if (start == std::string::npos)
+			{
+				start = 0;
+			}
+			else
+			{
+				++start;
+			}
+			return title.substr(start, end);
 		}
 
 		void postGen(std::vector <std::pair <std::string, std::string> > postList, 
@@ -45,7 +47,7 @@ namespace papero
 							  + templatePath
 							  + " --table-of-content -o "
 							  + outputPath
-							  + "/post"
+							  + "/post/"
 							  + pureTitle
 							  + ".html").c_str()
 				);
@@ -75,7 +77,7 @@ namespace papero
 
 		std::string getStyleHTML(std::string style)
 		{
-			return std::string("<link rel = \"stylesheet\" href = \"./post"
+			return std::string("<link rel = \"stylesheet\" href = \"./post/"
 							 + getPureTitle(style)
 							 + "\" type = \"text/css\" />");
 		}
@@ -86,9 +88,20 @@ namespace papero
 					  std::string author,
 					  std::string name,
 					  std::string style,
-					  std::string main)
+					  std::string main,
+					  std::string end)
 		{
 			std::ofstream indexFile;
+
+			std::ifstream File(main);
+			std::string startContent((std::istreambuf_iterator<char>(File) ),
+						   			 (std::istreambuf_iterator<char>()));
+			File.close();
+			File.open(end);
+			std::string endContent((std::istreambuf_iterator<char>(File) ),
+								   (std::istreambuf_iterator<char>()));
+			File.close();
+
 			indexFile.open(outputPath + "/index.html");
 
 			indexFile << std::string("<!DOCTYPE html>\n")
@@ -101,7 +114,7 @@ namespace papero
 								   + "</head>\n";
 
 			indexFile << std::string("<body>\n")
-								   + main;
+								   + startContent;
 
 			const int len = postList.size();
 			
@@ -112,7 +125,7 @@ namespace papero
 				std::string pureTitle = getPureTitle(postList.at(index).second);
 				indexFile << std::string("\t\t<li>\n")
 									   + "\t\t\t<a href=\""
-									   + "./post"
+									   + "./post/"
 									   + pureTitle
 									   + ".html\">"
 									   + postList.at(index).first
@@ -121,8 +134,10 @@ namespace papero
 			}
 
 			indexFile << std::string("\t</ol>\n")
+								   + endContent + '\n'
 					   			   + "</body>";
 			
+			indexFile.close();
 			return ;
 		}
 	}

@@ -60,6 +60,20 @@ namespace papero
 		{
 			return config.lookup("main");
 		}
-			
+
+		std::string getSiteDescription(const libconfig::Config & config)
+		{
+			return config.lookup("description");
+		}
+
+		std::string getSiteDomain(const libconfig::Config & config)
+		{
+			return config.lookup("domain");
+		}
+		
+		std::string getMainPageEndContent(const libconfig::Config & config)
+		{
+			return config.lookup("end");
+		}
 	}
 }
