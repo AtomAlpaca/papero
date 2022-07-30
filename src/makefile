@@ -1,4 +1,4 @@
-OBJS = main.o conf.o gen.o
+OBJS = main.o conf.o gen.o rss.o
 LIBS = -lconfig++
 
 main: $(OBJS)
@@ -12,6 +12,9 @@ conf.o: conf.h conf.cpp
 
 gen.o: gen.h gen.cpp
 	g++ -c gen.cpp -o gen.o
+
+rss.o: rss.h rss.cpp gen.h gen.cpp
+	g++ -c rss.cpp -o rss.o
 
 clean:
 	rm -rf *o papero

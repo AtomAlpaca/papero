@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -21,6 +23,7 @@ namespace papero
                                           std::string author,
                                           std::string name,
                                           std::string style,
-                                          std::string main);
+                                          std::string main,
+										  std::string end);
 	}
 }

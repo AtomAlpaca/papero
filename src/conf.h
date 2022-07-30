@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <vector>
 #include <utility>
@@ -17,5 +19,8 @@ namespace papero
 		std::string getAuthor(const libconfig::Config & config);
 		std::string getOutputPath(const libconfig::Config & config);
 		std::string getMainPageContent(const libconfig::Config & config);
+		std::string getSiteDescription(const libconfig::Config & config);
+		std::string getSiteDomain(const libconfig::Config & config);
+		std::string getMainPageEndContent(const libconfig::Config & config);
 	}
 }
