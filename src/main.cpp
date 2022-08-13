@@ -8,60 +8,39 @@ int main()
 
 	cfg.readFile("blog.conf");
 
+	papero::conf::siteConfig config = papero::conf::getSiteConfig(cfg);	
 
-	std::vector <std::pair <std::string, std::string> > postList;
-	std::string lang,
-				name,
-				style,
-				templatePath,
-				author,
-				outputPath,
-				mainPageContent,
-				endContent,
-				description,
-				domain;
+	const std::string & path = config.outputPath.content;
 
-	try
+	system((std::string("rm -rf ") + path).c_str());
+	system((std::string("mkdir ") + path + " " + path + "/post").c_str());
+
+	papero::gen::postGen(config.posts, path, config.temple.content);
+	papero::gen::indexGen(config);
+
+	if (bool(cfg.lookup("rss")))
 	{
-		postList		= papero::conf::getPosts(cfg.lookup("posts"));
-		lang 			= papero::conf::getLang (cfg);
-		name			= papero::conf::getName (cfg);
-		style 			= papero::conf::getStyle (cfg);
-		templatePath	= papero::conf::getTemple (cfg);
-		author			= papero::conf::getAuthor (cfg);
-		outputPath  	= papero::conf::getOutputPath (cfg);
-		mainPageContent = papero::conf::getMainPageContent(cfg);
-		endContent		= papero::conf::getMainPageEndContent(cfg);
-		description 	= papero::conf::getSiteDescription(cfg);
-		domain 			= papero::conf::getSiteDomain(cfg);
-	}
-	catch(...)
-	{
-		std::cerr << "Error: Error while reading config file" << std::endl;
-		return -1;
+		papero::rss::RSSGen(path,
+							config.name.content,
+							config.domain.content,
+							config.description.content,
+							config.posts);
 	}
 
-	system((std::string("rm -rf ")
-		  + outputPath).c_str());
-
-	system((std::string("mkdir ")
-		  + outputPath
-		  + " "
-		  + outputPath
-		  + "/post").c_str());
-
-	papero::gen::postGen(postList, outputPath, templatePath);
-	papero::gen::indexGen(postList, outputPath, lang, author, name, style, mainPageContent, endContent);
-	papero::rss::RSSGen(outputPath, name, domain, description, postList);
-
-	system((std::string("cp ")
-		  + style
-		  + " "
-		  + outputPath
-		  + "/post/"
-		  + papero::gen::getPureTitle(style)).c_str());
-
-	system((std::string("cp ./CNAME ")
-		  + outputPath).c_str());
+	if (config.style.able)
+	{
+		system((std::string("cp ")
+			  + config.style.content
+			  + " "
+  		 	  + path
+		  	  + "/post/"
+		  	  + papero::gen::getPureTitle(config.style.content)).c_str());
+	}
+	
+	if (bool(cfg.lookup("cname")))
+	{
+		system((std::string("cp ./CNAME ")
+			  + path).c_str());
+	}
 	return 0;
 }

@@ -37,20 +37,20 @@ namespace papero
 			std::ofstream RSS;
 			RSS.open(outputPath + "/rss.xml");
 
-			RSS << std::string("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n")
-							 + "<rss version=\"2.0\">\n"
-							 + "<channel>\n"
-							 + getChannelXML(title, link, description);
+			RSS << "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>" << std::endl
+				<< "<rss version=\"2.0\">" << std::endl
+				<< "<channel>" << std::endl
+				<< getChannelXML(title, link, description);
 			
 			const int len = postList.size();
-			for (int index = 0; index < len; ++index)
+			for (std::pair <std::string, std::string> index : postList)
 			{
-				RSS << getItemXML(postList.at(index).first,
-								  link + "post/" + papero::gen::getPureTitle(postList.at(index).second));
+				RSS << getItemXML(index.first,
+								  link + "post/" + papero::gen::getPureTitle(index.second));
 			}
 
-			RSS << std::string("</channel>\n")
-							 + "</rss>";
+			RSS << "</channel>" << std::endl
+				<< "</rss>";
 			
 			RSS.close();
 			return ;

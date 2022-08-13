@@ -31,25 +31,18 @@ namespace papero
 					 std::string outputPath,
 					 std::string templatePath)
 		{
-			const int len = postList.size();
-
-
-			for (int index = 0; index < len; ++index)
+			for (std::pair<std::string, std::string> index : postList)
 			{
-				std::string title = postList.at(index).second;
-				std::string pureTitle = getPureTitle(title);
+				const std::string title = index.second;
+				const std::string pureTitle = getPureTitle(title);
 
 				system
 				(
 					(std::string("pandoc ")
-							  + title
-							  + ".tex -f latex -t html5 --mathml --template="
-							  + templatePath
+							  + title + ".tex "
+							  + "-f latex -t html5 --mathml --template=" + templatePath 
 							  + " --table-of-content -o "
-							  + outputPath
-							  + "/post/"
-							  + pureTitle
-							  + ".html").c_str()
+							  + outputPath + "/post/" + pureTitle + ".html").c_str()
 				);
 			}
 		}
@@ -82,60 +75,109 @@ namespace papero
 							 + "\" type = \"text/css\" />");
 		}
 
-		void indexGen(std::vector <std::pair <std::string, std::string> > postList,
-					  std::string outputPath,
-					  std::string lang,
-					  std::string author,
-					  std::string name,
-					  std::string style,
-					  std::string main,
-					  std::string end)
+		void langGen(std::string content, std::ofstream & file)
 		{
-			std::ofstream indexFile;
+			file << getLangHTML(content) << std::endl;
+			return ;
+		}
 
-			std::ifstream File(main);
-			std::string startContent((std::istreambuf_iterator<char>(File) ),
-						   			 (std::istreambuf_iterator<char>()));
-			File.close();
-			File.open(end);
-			std::string endContent((std::istreambuf_iterator<char>(File) ),
-								   (std::istreambuf_iterator<char>()));
-			File.close();
+		void nameGen(std::string content, std::ofstream & file)
+		{
+			file << getNameHTML(content) << std::endl;
+		}
+		
+		void styleGen(std::string content, std::ofstream & file)
+		{
+			file << getStyleHTML(content) << std::endl;
+		}
 
-			indexFile.open(outputPath + "/index.html");
+		void authorGen(std::string content, std::ofstream & file)
+		{
+			file << getAuthorHTML(content) << std::endl;
+		}
 
-			indexFile << std::string("<!DOCTYPE html>\n")
-						   		   + getLangHTML(lang) + "\n\n"
-						 		   + "<head>\n"
-					 			   + "\t<meta charset = \"utf-8\"/>\n"
-								   + '\t' + getAuthorHTML(author) + '\n'
-								   + '\t' + getNameHTML(name) + '\n'
-								   + '\t' + getStyleHTML(style) + '\n'
-								   + "</head>\n";
+		void startGen(std::string path, std::ofstream & file)
+		{
+			std::ifstream input(path);
+			std::string content((std::istreambuf_iterator<char>(input)),
+								(std::istreambuf_iterator<char>()));
+			input.close();
+			file << content << std::endl;
+			return ;
+		}
 
-			indexFile << std::string("<body>\n")
-								   + startContent;
+		void endGen(std::string path, std::ofstream & file)
+		{
+			std::ifstream input(path);
+			std::string content((std::istreambuf_iterator<char>(input)),
+								(std::istreambuf_iterator<char>()));
+			input.close();
+			file << content << std::endl;
+			return ;
+		}
 
-			const int len = postList.size();
-			
-			indexFile << "\n\t<ol>\n";
+		void postListGen(std::vector <std::pair <std::string, std::string> > postList,
+						 std::ofstream & file)
+		{
+			file << std::endl << "\t<ol>" << std::endl;
 
-			for (int index = 0; index < len; ++index)
+			for (std::pair <std::string, std::string> index : postList)
 			{
-				std::string pureTitle = getPureTitle(postList.at(index).second);
-				indexFile << std::string("\t\t<li>\n")
-									   + "\t\t\t<a href=\""
-									   + "./post/"
-									   + pureTitle
-									   + ".html\">"
-									   + postList.at(index).first
-									   + "</a>\n"
-									   + "\t\t</li>\n";
+				std::string pureTitle = getPureTitle(index.second);
+				file << "\t\t<li>" << std::endl
+						  << "\t\t\t<a href=\"./post/" << pureTitle << ".html\">" << std::endl
+						  << index.first << std::endl
+						  << "</a>"      << std::endl
+						  << "\t\t</li>" << std::endl;
 			}
 
-			indexFile << std::string("\t</ol>\n")
-								   + endContent + '\n'
-					   			   + "</body>";
+			file << "\t</ol>" << std::endl;
+
+		}
+
+		void indexGen(papero::conf::siteConfig config)
+		{
+			std::ofstream indexFile;
+			indexFile.open(config.outputPath.content + "/index.html");
+
+			indexFile << "<!DOCTYPE html>" << std::endl;
+			if (config.lang.able)
+			{
+				langGen(config.lang.content, indexFile);
+			}
+			indexFile << "<head>" << std::endl
+					  << "\t<meta charset = \"utf-8\"/>" << std::endl;
+			if (config.author.able)
+			{
+				authorGen(config.author.content, indexFile);
+			}
+
+			if (config.name.able)
+			{
+				nameGen(config.name.content, indexFile);
+			}
+
+			if (config.style.able)
+			{
+				styleGen(config.style.content, indexFile);
+			}
+
+			indexFile << "</head>" << std::endl
+					  << "<body>"  << std::endl;
+			
+			if (config.startContent.able)
+			{
+				startGen(config.startContent.content, indexFile);
+			}
+
+			postListGen(config.posts, indexFile);
+
+			if (config.endContent.able)
+			{
+				endGen(config.endContent.content, indexFile);
+			}
+			
+			indexFile << "</body>";
 			
 			indexFile.close();
 			return ;

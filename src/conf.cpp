@@ -4,6 +4,24 @@ namespace papero
 {
 	namespace conf
 	{
+		siteConfig getSiteConfig(const libconfig::Config & config)
+		{
+			return
+			{
+				getLang(config),
+				getName(config),
+				getStyle(config),
+				getTemple(config),
+				getAuthor(config),
+				getOutputPath(config),
+				getMainPageContent(config),
+				getMainPageEndContent(config),
+				getSiteDescription(config),
+				getSiteDomain(config),
+				getPosts(config.lookup("posts"))
+			};
+		}
+
 			auto getPosts(const libconfig::Setting & postList) 
 		->  std::vector <std::pair <std::string, std::string> > 
 		{
@@ -26,54 +44,94 @@ namespace papero
 			return posts;
 		}
 
-		std::string getLang(const libconfig::Config & config)
+		singleConfig getLang(const libconfig::Config & config)
 		{
-			return config.lookup("lang");
+			if (config.exists("lang"))
+			{
+				return singleConfig{true, config.lookup("lang")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getName(const libconfig::Config & config)
+		singleConfig getName(const libconfig::Config & config)
 		{
-			return config.lookup("name");
+			if (config.exists("name"))
+			{
+				return singleConfig{true, config.lookup("name")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getStyle(const libconfig::Config & config)
+		singleConfig getStyle(const libconfig::Config & config)
 		{
-			return config.lookup("style");
+			if (config.exists("style"))
+			{
+				return singleConfig{true, config.lookup("style")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getAuthor(const libconfig::Config & config)
+		singleConfig getAuthor(const libconfig::Config & config)
 		{
-			return config.lookup("author");
+			if (config.exists("author"))
+			{
+				return singleConfig{true, config.lookup("author")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getTemple(const libconfig::Config & config)
+		singleConfig getTemple(const libconfig::Config & config)
 		{
-			return config.lookup("temple");
+			if (config.exists("temple"))
+			{
+				return singleConfig{true, config.lookup("temple")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getOutputPath(const libconfig::Config & config)
+		singleConfig getOutputPath(const libconfig::Config & config)
 		{
-			return config.lookup("output");
+			if (config.exists("output"))
+			{
+				return singleConfig{true, config.lookup("output")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getMainPageContent(const libconfig::Config & config)
+		singleConfig getMainPageContent(const libconfig::Config & config)
 		{
-			return config.lookup("main");
+			if (config.exists("main"))
+			{
+				return singleConfig{true, config.lookup("main")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getSiteDescription(const libconfig::Config & config)
+		singleConfig getSiteDescription(const libconfig::Config & config)
 		{
-			return config.lookup("description");
+			if (config.exists("description"))
+			{
+				return singleConfig{true, config.lookup("description")};
+			}
+			return singleConfig{false, ""};
 		}
 
-		std::string getSiteDomain(const libconfig::Config & config)
+		singleConfig getSiteDomain(const libconfig::Config & config)
 		{
-			return config.lookup("domain");
+			if (config.exists("domain"))
+			{
+				return singleConfig{true, config.lookup("domain")};
+			}
+			return singleConfig{false, ""};
 		}
 		
-		std::string getMainPageEndContent(const libconfig::Config & config)
+		singleConfig getMainPageEndContent(const libconfig::Config & config)
 		{
-			return config.lookup("end");
+			if (config.exists("end"))
+			{
+				return singleConfig{true, config.lookup("end")};
+			}
+			return singleConfig{false, ""};
 		}
 	}
 }
